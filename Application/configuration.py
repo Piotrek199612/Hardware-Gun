@@ -11,6 +11,14 @@ class Configuration:
     """List of buttons"""
     buttons = []
 
+
+    """Default Controller sensitivity"""
+    DEFAULT_CONTROLLER_SENSITIVITY = 1
+
+    """Controller sensitivity"""
+    controller_sensitivity = DEFAULT_CONTROLLER_SENSITIVITY
+
+
     """Reads or creates a configuration file"""
     def __init__(self):
         if not os.path.isfile(self.file_name):
@@ -20,7 +28,10 @@ class Configuration:
                 if line != '':
                     code = line.split(';')[0]
                     value = self.get_key(line.split(';')[1].replace('\n',''))
-                    self.buttons.append(Button(code, value))
+                    if code == 'controller_sensitivity':
+                        self.controller_sensitivity = float(value)
+                    else:
+                        self.buttons.append(Button(code, value))
 
 
     """Return Key object from string"""
@@ -108,6 +119,13 @@ class Configuration:
         with open(self.file_name, 'w') as config:
             for button in self.buttons:
                 button.save(config)
+            self.save_controller_sensitivity(config)
+
+    def save_controller_sensitivity(self,opened_file):
+        opened_file.write('controller_sensitivity')
+        opened_file.write(';')
+        opened_file.write("{0:.2f}".format(self.controller_sensitivity))
+        opened_file.write('\n')
 
     """Creates file with default values"""
     def create_default_file(self):
@@ -125,8 +143,14 @@ class Configuration:
         default.append("04;d\n")
         default.append("05;l\n")
         default.append("06;r\n")
-        default.append("07;e")
+        default.append("07;e\n")
+        default.append("08;w\n")
+        default.append("09;s\n")
+        default.append("10;a\n")
+        default.append("11;d\n")
+        default.append("controller_sensitivity;1.0\n")
         return default
+
 
 class Button:
     def __init__(self, code, value):
@@ -141,6 +165,7 @@ class Button:
 
     def get_text_value(self):
         return str(self.value).replace('\'','')
+
 
 class ButtonView:
     def __init__(self,frame, button, row, column):
@@ -169,6 +194,10 @@ class ButtonView:
             '05': 'Front grip 5',
             '06': 'Aim',
             '07': 'Trigger',
+            '08': 'Joystick Up',
+            '09': 'Joystick Down',
+            '10': 'Joystick Left',
+            '11': 'Joystick Right',
         }
         return name[str(code)]
 
